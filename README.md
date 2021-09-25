@@ -2,6 +2,15 @@
 This is the dining hall part of the Restaurant simulation of the first lab at the Network Programming course.
 The kitchen part of the Restaurant simulation: https://github.com/GheorgheMorari/KitchenServerGO
 
+View in browser addresses:
+
+localhost:8080/start  -to start sending one order every second
+
+localhost:8080/stop  -to stop sending one order every second
+
+localhost:8080/send  -to send one order and to display the response or error
+
+
 The dining hall system architecture:
 
 ![image](https://user-images.githubusercontent.com/53918731/133939450-7ce8bc35-0286-4d3d-951e-eb51d71869a2.png)
