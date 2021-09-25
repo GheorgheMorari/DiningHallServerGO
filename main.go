@@ -40,6 +40,8 @@ const kitchenServerPort = ":8000"
 var runFakeOrders int32 = 0
 
 func main() {
+	rand.Seed(69)
+
 	//TODO send Connect request ensure connection
 
 	var diningHallServer http.Server
