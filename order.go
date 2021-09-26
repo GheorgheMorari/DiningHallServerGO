@@ -1,21 +1,30 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"time"
 )
 
 type Order struct {
-	id         int
-	tableId    int
-	waiterId   int
-	items      []int
-	priority   int
-	maxWait    int
-	pickUpTime int64
+	Id      int `json:"id"`
+	TableId int `json:"table_id"`
+	WaiterId int   `json:"waiter_id"`
+	Items    []int `json:"items"`
+	Priority   int   `json:"priority"`
+	MaxWait    int   `json:"max_wait"`
+	PickUpTime int64 `json:"pick_up_time"`
 }
-
-var orderIdCounter = 0
+func (o *Order) getPayload()[]byte{
+	result , err := json.Marshal(*o)
+	if err != nil{
+		fmt.Println(err)
+		return nil
+	}
+	return result
+}
+var orderIdCounter = 1
 
 func getOrderId() int {
 	orderIdCounter++
@@ -30,14 +39,14 @@ func getRandomItems() []int {
 }
 func getRandomOrder() Order {
 	return Order{
-		id: orderIdCounter,
+		Id: getOrderId(),
 		//TODO configure table ids
-		tableId: rand.Intn(10),
+		TableId: rand.Intn(10),
 		//TODO configure waiter ids
-		waiterId:   rand.Intn(10),
-		items:      getRandomItems(),
-		priority:   rand.Intn(10),
-		maxWait:    rand.Intn(30)+20,
-		pickUpTime: time.Now().Unix(),
+		WaiterId:   rand.Intn(10),
+		Items:      getRandomItems(),
+		Priority:   rand.Intn(10),
+		MaxWait:    rand.Intn(30)+20,
+		PickUpTime: time.Now().Unix(),
 	}
 }

@@ -3,17 +3,19 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"sync/atomic"
 	"time"
 )
 
+var diningHallClient http.Client
 func sendOneFakeOrder(w http.ResponseWriter, r *http.Request) {
-	var diningHallClient http.Client
 	fmt.Fprintln(w, "Sent one fake order")
 
-	var requestBody = []byte(testingPayload)
-	request, _ := http.NewRequest(http.MethodPost, "http://localhost"+kitchenServerPort, bytes.NewBuffer(requestBody))
+	order := getRandomOrder()
+	var requestBody = order.getPayload()
+	request, _ := http.NewRequest(http.MethodPost, "http://localhost"+kitchenServerPort+"/order", bytes.NewBuffer(requestBody))
 	response, err := diningHallClient.Do(request)
 
 	if err != nil {
@@ -27,37 +29,37 @@ func sendOneFakeOrder(w http.ResponseWriter, r *http.Request) {
 }
 func startFakeOrders(w http.ResponseWriter, r *http.Request) {
 	atomic.StoreInt32(&runFakeOrders, 1)
-	fmt.Fprintln(w, "Started sending fake orders")
-	go sendFakeOrders(&runFakeOrders)
+	threads := 5
+	diningHallClient.CloseIdleConnections()
+	fmt.Fprintf(w, "Started sending fake orders on %d threads.\n", threads)
+	for i := 0; i < threads; i++ {
+		go sendFakeOrders(&runFakeOrders)
+	}
 }
+
 func stopFakeOrders(w http.ResponseWriter, r *http.Request) {
 	atomic.StoreInt32(&runFakeOrders, 0)
-	fmt.Fprintln(w, "Stopped sending fake orders")
+	fmt.Fprintln(w, "Stopped sending fake orders.")
+	diningHallClient.CloseIdleConnections()
 }
 
 func sendFakeOrders(runFakeOrders *int32) {
-	errorCount := 0
-	requestCount := 0
-	var diningHallClient http.Client
-	var requestBody = []byte(testingPayload)
-	for *runFakeOrders == 1 {
-		//TODO handle errors and requests
-		request, _ := http.NewRequest(http.MethodPost, "http://localhost"+kitchenServerPort, bytes.NewBuffer(requestBody))
+	//var diningHallClient http.Client
+	for *runFakeOrders == int32(1) {
 
+		order := getRandomOrder()
+		var requestBody = order.getPayload()
+		request, _ := http.NewRequest(http.MethodPost, "http://localhost"+kitchenServerPort+"/order", bytes.NewBuffer(requestBody))
 		_, err := diningHallClient.Do(request)
 
 		if err != nil {
-			errorCount++
-			fmt.Println("Error, encountered: ", err)
-			fmt.Println("Requests:", requestCount, " Errors:", errorCount)
-		} else {
-			requestCount++
-			if requestCount%5 == 0 {
-				fmt.Println("Requests:", requestCount, " Errors:", errorCount)
-			}
+			fmt.Println("Thread finished sending messages, due to error:")
+			fmt.Println(err)
+			return
 		}
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(time.Duration(rand.Float32()*3+1)*time.Second)
 	}
+	fmt.Println("Thread finished sending messages, the sending of the requests was stopped manually.")
 }
 
 const testingPayload = `{"order_id": 1,
