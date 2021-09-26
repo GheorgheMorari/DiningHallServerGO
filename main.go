@@ -20,6 +20,7 @@ func (DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Post Method Body:\n"+string(buffer))
 	} else {
 		if r.Method == http.MethodGet {
+			fmt.Fprintln(w, "Dining Hall server is UP on port "+diningHallPort)
 			if r.RequestURI == "/start" {
 				startFakeOrders(w, r)
 			}
@@ -29,7 +30,6 @@ func (DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if r.RequestURI == "/stop" {
 				stopFakeOrders(w, r)
 			}
-			fmt.Fprintln(w, "Dining Hall server is UP on port "+diningHallPort)
 		}
 	}
 
@@ -50,7 +50,7 @@ func main() {
 	diningHallServer.Handler = DiningHallHandler{}
 
 	fmt.Println(time.Now())
-	fmt.Println("DiningHallServer is listening and serving on port:"+diningHallPort)
+	fmt.Println("DiningHallServer is listening and serving on port:" + diningHallPort)
 	if err := diningHallServer.ListenAndServe(); err != nil {
 		//Stop sending fake orders
 		atomic.StoreInt32(&runFakeOrders, 0)
