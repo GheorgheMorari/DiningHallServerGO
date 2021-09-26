@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"net/http"
 	"sync/atomic"
-	"time"
 )
 
 type DiningHallHandler struct{}
@@ -35,22 +34,21 @@ func (DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
-const diningHallPort = ":7500"
+const diningHallPort = ":8080"
 const kitchenServerPort = ":8000"
 
 var runFakeOrders int32 = 0
 
 func main() {
 	rand.Seed(69)
+
 	//TODO send Connect request ensure connection
 
-	//TODO create a handle to stop the server
 	var diningHallServer http.Server
 	diningHallServer.Addr = diningHallPort
 	diningHallServer.Handler = DiningHallHandler{}
 
-	fmt.Println(time.Now())
-	fmt.Println("DiningHallServer is listening and serving on port:"+diningHallPort)
+	fmt.Println("DiningHallServer is listening and serving")
 	if err := diningHallServer.ListenAndServe(); err != nil {
 		//Stop sending fake orders
 		atomic.StoreInt32(&runFakeOrders, 0)
