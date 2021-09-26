@@ -3,6 +3,8 @@ This is the dining hall part of the Restaurant simulation of the first lab at th
 The kitchen part of the Restaurant simulation: https://github.com/GheorgheMorari/KitchenServerGO
 
 # Docker stuff:
+If you don't run linux, or don't have git bash, change the file type of the scripts to cmd.
+
 run build_and_start_container.sh to build and start container
 
 run start_server_from_container.sh to start or restart server
