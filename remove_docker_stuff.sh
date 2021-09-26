@@ -1,3 +1,0 @@
-docker stop dining_hall_container
-docker rm dining_hall_container
-docker rmi dining_hall_image
