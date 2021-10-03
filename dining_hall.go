@@ -15,7 +15,7 @@ func sendOneFakeOrder(w http.ResponseWriter, r *http.Request) {
 
 	order := getRandomOrder()
 	var requestBody = order.getPayload()
-	request, _ := http.NewRequest(http.MethodPost, "http://localhost"+kitchenServerPort+"/order", bytes.NewBuffer(requestBody))
+	request, _ := http.NewRequest(http.MethodPost, kitchenServerHost+kitchenServerPort+"/order", bytes.NewBuffer(requestBody))
 	response, err := diningHallClient.Do(request)
 
 	if err != nil {
