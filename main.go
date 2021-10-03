@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"sync/atomic"
 	"time"
 )
@@ -35,6 +36,9 @@ func (DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
+const diningHallHost = "http://localhost"
+var kitchenServerHost = "http://localhost"
+
 const diningHallPort = ":7500"
 const kitchenServerPort = ":8000"
 
@@ -45,6 +49,14 @@ func main() {
 	//TODO send Connect request ensure connection
 
 	//TODO create a handle to stop the server
+
+	args := os.Args
+
+	if len(args) > 1{
+		//Set the docker internal host
+		kitchenServerHost = args[1]
+	}
+
 	var diningHallServer http.Server
 	diningHallServer.Addr = diningHallPort
 	diningHallServer.Handler = DiningHallHandler{}
