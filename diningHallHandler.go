@@ -45,7 +45,7 @@ func (d DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintln(w, makeDiv("DiningHall did not establish connection to kitchen on address:"+kitchenServerHost+kitchenServerPort))
 				err := diningHall.diningHallWeb.connectionError
 				if err != nil {
-					fmt.Fprintln(w, makeDiv("Connection error: " + diningHall.diningHallWeb.connectionError.Error()))
+					fmt.Fprintln(w, makeDiv("Connection error: " + err.Error()))
 				}
 			}
 			fmt.Fprintln(w, makeDiv(diningHall.getStatus()))
