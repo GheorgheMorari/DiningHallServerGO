@@ -7,8 +7,8 @@ import (
 )
 
 type DiningHallHandler struct {
-	packetsReceived      int32
-	postReceived         int32
+	packetsReceived int32
+	postReceived    int32
 }
 
 func (d DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +20,7 @@ func (d DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if latestDelivery != nil {
 				diningHall.diningHallWeb.setDelivery(latestDelivery)
 				response = "NOT OK"
-				fmt.Fprintln(w, response)
+				fmt.Fprint(w, response)
 				return
 			} else {
 				latestDelivery = new(Delivery)
@@ -30,28 +30,27 @@ func (d DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				diningHall.diningHallWeb.setDelivery(latestDelivery)
 
 				//Respond with "OK"
-				fmt.Fprintln(w, response)
+				fmt.Fprint(w, response)
 			}
 		}
 	case http.MethodGet:
 		{
 			//Todo display what dining hall is doing
 
-			//fmt.Fprintln(w, "Dining Hall server is UP on port "+diningHallPort)
-			//if r.RequestURI == "/start" {
-			//	startFakeOrders(w, r)
-			//}
-			//if r.RequestURI == "/send" {
-			//	sendOneFakeOrder(w, r)
-			//}
-			//if r.RequestURI == "/stop" {
-			//	stopFakeOrders(w, r)
-			//}
+			fmt.Fprintln(w, "DiningHall server is UP on port "+diningHallPort)
+			if diningHall.connected {
+				fmt.Fprintln(w, "DiningHall successfully connected to kitchen on address:"+kitchenServerHost+kitchenServerPort)
+			} else {
+				fmt.Fprintln(w, "DiningHall did not establish connection to kitchen on address:"+kitchenServerHost+kitchenServerPort)
+			}
+			if r.RequestURI == "/connect" {
+				diningHall.diningHallWeb.establishConnection()
+			}
 		}
 	case http.MethodConnect:
 		{
-			diningHall.diningHallWeb.establishConnection()
-			fmt.Fprintln(w, "OK")
+			diningHall.connectionSuccessful()
+			fmt.Fprint(w, "OK")
 		}
 	default:
 		{
@@ -59,4 +58,3 @@ func (d DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-

@@ -66,9 +66,13 @@ func (dhw *DiningHallWeb) sendOrder(order *Order) bool {
 }
 
 func (dhw *DiningHallWeb) establishConnection() bool{
-	request, _ := http.NewRequest(http.MethodConnect, kitchenServerHost+kitchenServerPort+"/order", bytes.NewBuffer([]byte{}))
+	if diningHall.connected == true {
+		return false
+	}
+	request, _ := http.NewRequest(http.MethodConnect, kitchenServerHost+kitchenServerPort+"/", bytes.NewBuffer([]byte{}))
 	response, err := dhw.diningHallClient.Do(request)
 	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 	var responseBody = make([]byte, response.ContentLength)

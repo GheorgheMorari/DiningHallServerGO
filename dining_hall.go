@@ -15,6 +15,7 @@ func (dh *DiningHall) start() {
 }
 
 func (dh *DiningHall) connectionSuccessful() {
+	if dh.connected {return}
 	dh.connected = true
 	dh.tableList.start()
 	dh.waiterList.start()
@@ -22,7 +23,7 @@ func (dh *DiningHall) connectionSuccessful() {
 
 func (dh *DiningHall) tryConnectKitchen() {
 	dh.connected = false
-	for dh.connected {
+	for !dh.connected {
 		if dh.diningHallWeb.establishConnection() {
 			dh.connectionSuccessful()
 			break

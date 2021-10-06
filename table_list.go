@@ -10,7 +10,7 @@ type TableList struct {
 
 func (tl *TableList) start() {
 	tl.tableListCounter = 0
-
+	tl.tableList = []Table{}
 	for i := 0; i < tableN; i++ {
 		tl.tableList = append(tl.tableList, Table{tl.tableListCounter, 0, 0, 0, nil})
 		tl.tableListCounter++
