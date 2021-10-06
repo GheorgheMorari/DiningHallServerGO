@@ -8,45 +8,53 @@ import (
 )
 
 type Order struct {
-	Id      int `json:"id"`
-	TableId int `json:"table_id"`
-	WaiterId int   `json:"waiter_id"`
-	Items    []int `json:"items"`
+	Id         int   `json:"id"`
+	TableId    int   `json:"table_id"`
+	WaiterId   int   `json:"waiter_id"`
+	Items      []int `json:"items"`
 	Priority   int   `json:"priority"`
 	MaxWait    int   `json:"max_wait"`
 	PickUpTime int64 `json:"pick_up_time"`
 }
-func (o *Order) getPayload()[]byte{
-	result , err := json.Marshal(*o)
-	if err != nil{
+
+func (o *Order) getPayload() []byte {
+	result, err := json.Marshal(*o)
+	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
 	return result
 }
+
 var orderIdCounter = 1
 
 func getOrderId() int {
 	orderIdCounter++
 	return orderIdCounter - 1
 }
-func getRandomItems() []int {
-	var ret []int
-	for i := 0; i < rand.Intn(10)+1; i++ {
-		ret = append(ret, rand.Intn(10)+1)
+
+//TODO add table and waiter
+func generateOrder(table *Table) *Order {
+
+	itemNum := rand.Intn(5) + 1
+	var items []int
+	maxWait := -1
+	for i := 0; i < itemNum; i++ {
+		item := rand.Intn(len(menu))
+		items = append(items, item)
+		itemWait := menu[item].preparationTime * 3
+		if itemWait > maxWait {
+			maxWait = itemWait
+		}
 	}
-	return ret
-}
-func getRandomOrder() Order {
-	return Order{
+
+	return &Order{
 		Id: getOrderId(),
-		//TODO configure table ids
-		TableId: rand.Intn(10),
-		//TODO configure waiter ids
-		WaiterId:   rand.Intn(10),
-		Items:      getRandomItems(),
-		Priority:   rand.Intn(10),
-		MaxWait:    rand.Intn(30)+20,
+		TableId: table.id,
+		WaiterId:   -1,
+		Items:      items,
+		Priority:   rand.Intn(3),
+		MaxWait:    maxWait,
 		PickUpTime: time.Now().Unix(),
 	}
 }
