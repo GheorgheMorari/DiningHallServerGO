@@ -18,11 +18,7 @@ run remove_docker_stuff.sh to remove docker image and container
 
 # View in browser addresses:
 
-http://localhost:7500/start -to start sending fake orders from 5 threads, each with 1-3 second delay between requests
-
-http://localhost:7500/stop -to stop sending fake orders
-
-http://localhost:7500/send -to send one order and to display the response or error
+http://localhost:7500/ -To view the status of the dining hall.
 
 # The dining hall system architecture:
 
