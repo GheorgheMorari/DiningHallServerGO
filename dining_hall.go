@@ -1,15 +1,19 @@
 package main
 
-import "time"
+import (
+	"time"
+)
 
 type DiningHall struct {
 	diningHallWeb DiningHallWeb
-	waiterList    WaiterList
-	tableList     TableList
+	waiterList    *WaiterList
+	tableList     *TableList
 	connected     bool
 }
 
 func (dh *DiningHall) start() {
+	dh.waiterList = NewWaiterList()
+	dh.tableList = NewTableList()
 	go dh.tryConnectKitchen()
 	dh.diningHallWeb.start()
 }
@@ -35,4 +39,17 @@ func (dh *DiningHall) tryConnectKitchen() {
 
 func (dh *DiningHall) sendOrder(order *Order) bool {
 	return dh.diningHallWeb.sendOrder(order)
+}
+
+func (dh *DiningHall) getStatus() string {
+	ret := "Waiters:"
+	for _, waiter := range dh.waiterList.waiterList {
+		ret += makeDiv(waiter.getStatus())
+	}
+	ret +="Tables:"
+	for _, table := range dh.tableList.tableList {
+		ret+= makeDiv(table.getStatus())
+	}
+
+	return ret
 }

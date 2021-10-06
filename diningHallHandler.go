@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+
+
 type DiningHallHandler struct {
 	packetsReceived int32
 	postReceived    int32
@@ -35,17 +37,18 @@ func (d DiningHallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	case http.MethodGet:
 		{
-			//Todo display what dining hall is doing
-
-			fmt.Fprintln(w, "DiningHall server is UP on port "+diningHallPort)
+			fmt.Fprintln(w,"<head><meta http-equiv=\"refresh\" content=\"1\" /></head>")
+			fmt.Fprintln(w, makeDiv("DiningHall server is UP on port "+diningHallPort))
 			if diningHall.connected {
-				fmt.Fprintln(w, "DiningHall successfully connected to kitchen on address:"+kitchenServerHost+kitchenServerPort)
+				fmt.Fprintln(w, makeDiv("DiningHall successfully connected to kitchen on address:"+kitchenServerHost+kitchenServerPort))
 			} else {
-				fmt.Fprintln(w, "DiningHall did not establish connection to kitchen on address:"+kitchenServerHost+kitchenServerPort)
+				fmt.Fprintln(w, makeDiv("DiningHall did not establish connection to kitchen on address:"+kitchenServerHost+kitchenServerPort))
+				err := diningHall.diningHallWeb.connectionError
+				if err != nil {
+					fmt.Fprintln(w, makeDiv("Connection error: " + diningHall.diningHallWeb.connectionError.Error()))
+				}
 			}
-			if r.RequestURI == "/connect" {
-				diningHall.diningHallWeb.establishConnection()
-			}
+			fmt.Fprintln(w, makeDiv(diningHall.getStatus()))
 		}
 	case http.MethodConnect:
 		{

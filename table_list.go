@@ -3,19 +3,22 @@ package main
 import "sync"
 
 type TableList struct {
-	tableList        []Table
+	tableList        []*Table
 	tableListCounter int
 	tableMutex       sync.Mutex
 }
 
-func (tl *TableList) start() {
-	tl.tableListCounter = 0
-	tl.tableList = []Table{}
+func NewTableList() *TableList {
+	tableListCounter := 0
+	tableList := make([]*Table,0)
 	for i := 0; i < tableN; i++ {
-		tl.tableList = append(tl.tableList, Table{tl.tableListCounter, 0, 0, 0, nil})
-		tl.tableListCounter++
+		tableList = append(tableList, NewTable(tableListCounter, 0, 0, 0, 1, nil))
+		tableListCounter++
 	}
+	return &TableList{tableList,tableListCounter,sync.Mutex{}}
+}
 
+func (tl *TableList) start() {
 	for _, table := range tl.tableList {
 		go table.startAvailability()
 	}
@@ -37,7 +40,7 @@ func (tl *TableList) lookUpTable() *Table {
 	for _, table := range tl.tableList {
 		if table.available == 1 && table.occupied == 1 && table.ordered == 0 {
 			table.ordered = 1
-			return &table
+			return table
 		}
 	}
 	return nil

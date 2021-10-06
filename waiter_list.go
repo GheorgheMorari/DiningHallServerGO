@@ -1,18 +1,22 @@
 package main
 
 type WaiterList struct {
-	waiterList      []Waiter
+	waiterList      []*Waiter
 	waiterIdCounter int
 }
 
-func (wl WaiterList) start() {
-	wl.waiterIdCounter = 0
-	wl.waiterList = []Waiter{}
+func NewWaiterList() *WaiterList {
+	waiterList := make([]*Waiter, 0)
+	waiterIdCounter := 0
 	for i := 0; i < waiterN; i++ {
-		wl.waiterList = append(wl.waiterList, Waiter{wl.waiterIdCounter,0})
-		wl.waiterIdCounter++
+		waiterList = append(waiterList, NewWaiter(waiterIdCounter, 0, 0, 0))
+		waiterIdCounter++
 	}
 
+	return &WaiterList{waiterList,waiterIdCounter}
+}
+
+func (wl WaiterList) start() {
 	for _, waiter := range wl.waiterList {
 		go waiter.startWorking()
 	}

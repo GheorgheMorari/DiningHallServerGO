@@ -47,14 +47,15 @@ func generateOrder(table *Table) *Order {
 			maxWait = itemWait
 		}
 	}
+	ret := new(Order)
 
-	return &Order{
-		Id: getOrderId(),
-		TableId: table.id,
-		WaiterId:   -1,
-		Items:      items,
-		Priority:   rand.Intn(3),
-		MaxWait:    maxWait,
-		PickUpTime: time.Now().Unix(),
-	}
+	ret.Id = getOrderId()
+	ret.TableId = table.id
+	ret.WaiterId = -1
+	ret.Items = items
+	ret.Priority = rand.Intn(3)
+	ret.MaxWait = maxWait
+	ret.PickUpTime = time.Now().Unix()
+
+	return ret
 }
