@@ -8,7 +8,7 @@ import (
 )
 
 type Order struct {
-	Id         int   `json:"id"`
+	Id         int   `json:"order_id"`
 	TableId    int   `json:"table_id"`
 	WaiterId   int   `json:"waiter_id"`
 	Items      []int `json:"items"`
@@ -33,7 +33,6 @@ func getOrderId() int {
 	return orderIdCounter - 1
 }
 
-//TODO add table and waiter
 func generateOrder(table *Table) *Order {
 
 	itemNum := rand.Intn(5) + 1
