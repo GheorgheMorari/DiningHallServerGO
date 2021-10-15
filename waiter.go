@@ -60,7 +60,7 @@ func (w *Waiter) startWorking() {
 		}
 
 		if !didATask {
-			//Wait one second because there are no tasks
+			//Wait one unit because there are no tasks
 			w.statusId = 0
 			time.Sleep(timeUnit)
 		}

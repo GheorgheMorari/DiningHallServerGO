@@ -82,7 +82,7 @@ func (t *Table) stopAvailability() {
 func (t *Table) waitForOrderList() {
 	atomic.StoreInt32(&t.ordered, 1)
 	t.statusId = 3
-	time.Sleep(timeUnit * 2) //Wait 2 seconds for the order list to free
+	time.Sleep(timeUnit * 2) //Wait 2 units for the order list to free
 	atomic.StoreInt32(&t.ordered, 0)
 }
 
