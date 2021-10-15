@@ -32,7 +32,7 @@ func (dh *DiningHall) tryConnectKitchen() {
 			dh.connectionSuccessful()
 			break
 		} else {
-			time.Sleep(time.Second)
+			time.Sleep(timeUnit)
 		}
 	}
 }

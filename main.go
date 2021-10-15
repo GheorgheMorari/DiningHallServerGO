@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 )
 
 var kitchenServerHost = "http://localhost"
@@ -11,6 +12,8 @@ const kitchenServerPort = ":8000"
 
 const tableN = 6
 const waiterN = 3
+
+const timeUnit = time.Second
 
 var diningHall DiningHall
 

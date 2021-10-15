@@ -38,7 +38,8 @@ func (t *Table) startAvailability() {
 func (t *Table) deliver(delivery *Delivery) {
 	//Wait based on the delivery size
 	t.statusId = 2
-	time.Sleep(time.Second * time.Duration(len(delivery.Items)))
+	t.order = nil
+	time.Sleep(timeUnit * time.Duration(len(delivery.Items)))
 
 	//TODO Add reputation calculation system
 
@@ -52,7 +53,7 @@ func (t *Table) waitCustomers() {
 		syncMutex := sync.Mutex{}
 		atomic.StoreInt32(&t.ordered, 1)
 		t.statusId = 1
-		time.Sleep(time.Second * time.Duration(rand.Intn(10)))
+		time.Sleep(timeUnit * time.Duration(rand.Intn(10)))
 
 		syncMutex.Lock()
 		if t.order == nil {
@@ -81,7 +82,7 @@ func (t *Table) stopAvailability() {
 func (t *Table) waitForOrderList() {
 	atomic.StoreInt32(&t.ordered, 1)
 	t.statusId = 3
-	time.Sleep(time.Second * 2) //Wait 2 seconds for the order list to free
+	time.Sleep(timeUnit * 2) //Wait 2 seconds for the order list to free
 	atomic.StoreInt32(&t.ordered, 0)
 }
 

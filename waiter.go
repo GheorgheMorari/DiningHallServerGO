@@ -41,7 +41,7 @@ func (w *Waiter) startWorking() {
 				didATask = true
 				w.modifierId = order.Id
 				w.statusId = 1
-				time.Sleep(time.Second)
+				time.Sleep(timeUnit)
 			} else {
 				go table.waitForOrderList()
 				didATask = false
@@ -55,14 +55,14 @@ func (w *Waiter) startWorking() {
 			//Serve delivery to the required table
 			w.statusId = 2
 			w.modifierId = delivery.OrderId
-			time.Sleep(time.Second)
+			time.Sleep(timeUnit)
 			go diningHall.tableList.tableList[delivery.TableId].deliver(delivery)
 		}
 
 		if !didATask {
 			//Wait one second because there are no tasks
 			w.statusId = 0
-			time.Sleep(time.Second)
+			time.Sleep(timeUnit)
 		}
 
 	}
