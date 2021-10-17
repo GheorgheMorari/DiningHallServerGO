@@ -107,7 +107,7 @@ func (t *Table) waitForOrderList() {
 func (t *Table) getStatus() string {
 	waitStatus := ""
 	if t.occupied == 1 && t.ordered == 1 && t.order != nil {
-		waitStatus = " Waiting for:" + strconv.Itoa(int(time.Now().Unix()-t.order.PickUpTime)) + "sec" + " Max wait:" + strconv.Itoa(t.order.MaxWait)
+		waitStatus = " Waiting for:" + strconv.Itoa(int(getUnixTimeUnits()-t.order.PickUpTime)) + "sec" + " Max wait:" + strconv.Itoa(t.order.MaxWait)
 	}
 	return "Table id:" + strconv.Itoa(t.id) + " Status:" + tableStatus[t.statusId] + waitStatus
 }

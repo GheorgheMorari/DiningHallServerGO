@@ -13,7 +13,7 @@ const kitchenServerPort = ":8000"
 const tableN = 6
 const waiterN = 3
 
-const timeUnit = time.Second
+const timeUnit = time.Millisecond
 
 var diningHall DiningHall
 

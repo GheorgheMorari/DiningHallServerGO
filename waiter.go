@@ -56,7 +56,7 @@ func (w *Waiter) startWorking() {
 			w.statusId = 2
 			w.modifierId = delivery.OrderId
 			time.Sleep(timeUnit)
-			now := time.Now().Unix()
+			now := getUnixTimeUnits()
 			go diningHall.tableList.tableList[delivery.TableId].deliver(delivery,now)
 		}
 

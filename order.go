@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
-	"time"
 )
 
 type Order struct {
@@ -54,7 +53,7 @@ func generateOrder(table *Table) *Order {
 	ret.Items = items
 	ret.Priority = rand.Intn(3)
 	ret.MaxWait = maxWait
-	ret.PickUpTime = time.Now().Unix()
+	ret.PickUpTime = getUnixTimeUnits()
 
 	return ret
 }

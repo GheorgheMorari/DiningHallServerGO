@@ -14,18 +14,18 @@ func NewRating() *Rating {
 }
 
 func (r *Rating) addValue(rating int) {
-	if r.orderNum > r.maxSize {
+	if !r.full && r.orderNum >= r.maxSize {
 		r.full = true
 	}
 
-	r.values[r.orderNum] = rating
+	r.values[r.orderNum % r.maxSize] = rating
 	r.orderNum++
 
 	numberOfReviews := 0
 	if r.full {
 		numberOfReviews = r.maxSize
 	} else {
-		numberOfReviews = r.orderNum % r.maxSize
+		numberOfReviews = r.orderNum
 	}
 
 	sum := 0
