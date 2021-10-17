@@ -35,13 +35,31 @@ func (t *Table) startAvailability() {
 	t.waitCustomers()
 }
 
-func (t *Table) deliver(delivery *Delivery) {
+func (t *Table) deliver(delivery *Delivery, now int64) {
 	//Wait based on the delivery size
 	t.statusId = 2
 	t.order = nil
-	time.Sleep(timeUnit * time.Duration(len(delivery.Items)))
+	rating := 0
+	maxWaitF := float64(delivery.MaxWait)
+	timeWaitedF := float64(now - delivery.PickUpTime)
+	if maxWaitF > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.1 > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.2 > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.3 > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.4 > timeWaitedF {
+		rating += 1
+	}
 
-	//TODO Add reputation calculation system
+	diningHall.ratings.addValue(rating)
+	time.Sleep(timeUnit * (time.Duration(len(delivery.Items) + 1)))
 
 	atomic.StoreInt32(&t.ordered, 0)
 	atomic.StoreInt32(&t.occupied, 0)
@@ -88,8 +106,8 @@ func (t *Table) waitForOrderList() {
 
 func (t *Table) getStatus() string {
 	waitStatus := ""
-	if t.occupied == 1 && t.ordered == 1 && t.order != nil{
-		waitStatus = " Waiting for:" + strconv.Itoa(int(time.Now().Unix() - t.order.PickUpTime))+"sec" + " Max wait:"+strconv.Itoa(t.order.MaxWait)
+	if t.occupied == 1 && t.ordered == 1 && t.order != nil {
+		waitStatus = " Waiting for:" + strconv.Itoa(int(time.Now().Unix()-t.order.PickUpTime)) + "sec" + " Max wait:" + strconv.Itoa(t.order.MaxWait)
 	}
 	return "Table id:" + strconv.Itoa(t.id) + " Status:" + tableStatus[t.statusId] + waitStatus
 }
