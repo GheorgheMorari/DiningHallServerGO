@@ -49,15 +49,17 @@ func (w *Waiter) startWorking() {
 		}
 
 		//Receive delivery
-		delivery := diningHall.diningHallWeb.getDelivery()
-		if delivery != nil {
+		select {
+		case delivery := <-diningHall.deliveryChan:
 			didATask = true
 			//Serve delivery to the required table
 			w.statusId = 2
 			w.modifierId = delivery.OrderId
 			time.Sleep(timeUnit)
 			now := getUnixTimeUnits()
-			go diningHall.tableList.tableList[delivery.TableId].deliver(delivery,now)
+			go diningHall.tableList.tableList[delivery.TableId].deliver(delivery, now)
+		default:
+			break
 		}
 
 		if !didATask {
@@ -68,7 +70,7 @@ func (w *Waiter) startWorking() {
 
 	}
 }
-func (w * Waiter) getStatus() string {
+func (w *Waiter) getStatus() string {
 	status := "Waiter id:" + strconv.Itoa(w.id) + " Status:" + waiterStatus[w.statusId]
 	if w.statusId != 0 {
 		return status + strconv.Itoa(w.modifierId)

@@ -9,6 +9,7 @@ type DiningHall struct {
 	diningHallWeb DiningHallWeb
 	waiterList    *WaiterList
 	tableList     *TableList
+	deliveryChan  chan *Delivery
 	ratings       *Rating
 	connected     bool
 	startTime     time.Time
@@ -28,6 +29,7 @@ func (dh *DiningHall) connectionSuccessful() {
 		return
 	}
 	dh.connected = true
+	dh.deliveryChan = make(chan *Delivery)
 	dh.tableList.start()
 	dh.waiterList.start()
 }
@@ -49,8 +51,8 @@ func (dh *DiningHall) sendOrder(order *Order) bool {
 }
 
 func (dh *DiningHall) getStatus() string {
-	ret := "Running for:" + fmt.Sprintf("%v",time.Since(dh.startTime))
-	ret += makeDiv("Rating:"+fmt.Sprintf("%f", dh.ratings.getAverage())+" Total reviews:"+fmt.Sprintf("%d",dh.ratings.getNumOfOrders()))
+	ret := "Running for:" + fmt.Sprintf("%v", time.Since(dh.startTime))
+	ret += makeDiv("Rating:" + fmt.Sprintf("%f", dh.ratings.getAverage()) + " Total reviews:" + fmt.Sprintf("%d", dh.ratings.getNumOfOrders()))
 	ret += "Waiters:"
 	for _, waiter := range dh.waiterList.waiterList {
 		ret += makeDiv(waiter.getStatus())
