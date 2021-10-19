@@ -2,10 +2,15 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"time"
 )
+
+//Table tunables
+const waitForCustomersTime = timeUnit * 5
+const maxWaitForCustomersMultiplier = 5
+const eatingTimePerItem = timeUnit * 5
+
 
 var tableStatus = [...]string{"Waiting for customers.", "Waiting for waiter.", "Waiting for delivery.", "Eating."}
 
@@ -51,17 +56,17 @@ func (t *Table) deliver(delivery *Delivery, now int64) {
 	}
 	diningHall.ratings.addValue(rating)
 	go func() {
-		time.Sleep(timeUnit * (time.Duration(len(delivery.Items) + 1)))
+		time.Sleep(eatingTimePerItem * (time.Duration(len(delivery.Items) + 1)))
 		t.waitCustomers()
 	}()
 }
 
 func (t *Table) waitCustomers() {
 	t.status = 0
+
+	time.Sleep(waitForCustomersTime * time.Duration(maxWaitForCustomersMultiplier))
+
 	t.order = generateOrder(t)
-
-	time.Sleep(timeUnit * time.Duration(rand.Intn(10)))
-
 	t.status = 1
 }
 
