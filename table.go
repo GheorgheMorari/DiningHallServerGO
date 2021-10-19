@@ -1,94 +1,81 @@
 package main
 
 import (
-	"math/rand"
 	"strconv"
-	"sync"
-	"sync/atomic"
 	"time"
 )
 
-var tableStatus = [...]string{"Waiting for delivery.", "Waiting for customers.", "Eating.", "Waiting for kitchen's order list to empty.", "Waiting for waiter."}
+//Table tunables
+const waitForCustomersTime = timeUnit * 5
+const maxWaitForCustomersMultiplier = 5
+const eatingTimePerItem = timeUnit * 5
+
+
+var tableStatus = [...]string{"Waiting for customers.", "Waiting for waiter.", "Waiting for delivery.", "Eating."}
 
 type Table struct {
-	id        int
-	ordered   int32
-	occupied  int32
-	available int32
-	statusId  int
-	order     *Order
+	id     int
+	status int //Look at tableStatus
+	order  *Order
 }
 
-func NewTable(id int, ordered int32, occupied int32, available int32, statusId int, order *Order) *Table {
+func NewTable(id int, status int, order *Order) *Table {
 	ret := new(Table)
 	ret.id = id
-	ret.ordered = ordered
-	ret.occupied = occupied
-	ret.available = available
-	ret.statusId = statusId
+	ret.status = status
 	ret.order = order
 	return ret
 }
 
-func (t *Table) startAvailability() {
-	atomic.StoreInt32(&t.available, 1)
-	t.waitCustomers()
-}
+func (t *Table) deliver(delivery *Delivery, now int64) {
+	t.status = 3 //Set status to "eating"
+	t.order = nil
 
-func (t *Table) deliver(delivery *Delivery) {
-	//Wait based on the delivery size
-	t.statusId = 2
-	time.Sleep(time.Second * time.Duration(len(delivery.Items)))
-
-	//TODO Add reputation calculation system
-
-	atomic.StoreInt32(&t.ordered, 0)
-	atomic.StoreInt32(&t.occupied, 0)
-	t.waitCustomers()
+	rating := 0
+	maxWaitF := float64(delivery.MaxWait)
+	timeWaitedF := float64(now - delivery.PickUpTime)
+	if maxWaitF > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.1 > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.2 > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.3 > timeWaitedF {
+		rating += 1
+	}
+	if maxWaitF*1.4 > timeWaitedF {
+		rating += 1
+	}
+	diningHall.ratings.addValue(rating)
+	go func() {
+		time.Sleep(eatingTimePerItem * (time.Duration(len(delivery.Items) + 1)))
+		t.waitCustomers()
+	}()
 }
 
 func (t *Table) waitCustomers() {
-	if t.available == 1 && t.occupied == 0 {
-		syncMutex := sync.Mutex{}
-		atomic.StoreInt32(&t.ordered, 1)
-		t.statusId = 1
-		time.Sleep(time.Second * time.Duration(rand.Intn(10)))
+	t.status = 0
 
-		syncMutex.Lock()
-		if t.order == nil {
-			t.order = generateOrder(t)
-		}
-		syncMutex.Unlock()
-		//addr := (*unsafe.Pointer)(unsafe.Pointer(t.order))
-		//newOrder := unsafe.Pointer(generateOrder(t))
-		//atomic.StorePointer(addr, newOrder)
-		atomic.StoreInt32(&t.ordered, 0)
-		atomic.StoreInt32(&t.occupied, 1)
-		t.statusId = 4
-	}
+	time.Sleep(waitForCustomersTime * time.Duration(maxWaitForCustomersMultiplier))
+
+	t.order = generateOrder(t)
+	t.status = 1
 }
 
-func (t *Table) getOrder(waiter *Waiter) *Order {
-	t.statusId = 0
+func (t *Table) serve(waiter *Waiter) *Order {
+	t.status = 2
 	t.order.WaiterId = waiter.id
+	t.order.PickUpTime = getUnixTimeUnits()
 	return t.order
-}
-
-func (t *Table) stopAvailability() {
-	atomic.StoreInt32(&t.available, 0)
-}
-
-func (t *Table) waitForOrderList() {
-	atomic.StoreInt32(&t.ordered, 1)
-	t.statusId = 3
-	time.Sleep(time.Second * 2) //Wait 2 seconds for the order list to free
-	atomic.StoreInt32(&t.ordered, 0)
 }
 
 func (t *Table) getStatus() string {
 	waitStatus := ""
-	if t.occupied == 1 && t.ordered == 1 && t.order != nil{
-		waitStatus = " Waiting for:" + strconv.Itoa(int(time.Now().Unix() - t.order.PickUpTime))+"sec" + " Max wait:"+strconv.Itoa(t.order.MaxWait)
+	if t.order != nil && t.status == 2 {
+		waitStatus = " Waiting for:" + strconv.Itoa(int(getUnixTimeUnits()-t.order.PickUpTime)) + "sec" + " Max wait:" + strconv.Itoa(t.order.MaxWait)
 	}
-	return "Table id:" + strconv.Itoa(t.id) + " Status:" + tableStatus[t.statusId] + waitStatus
+	return "Table id:" + strconv.Itoa(t.id) + " Status:" + tableStatus[t.status] + waitStatus
 }

@@ -2,9 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"math/rand"
-	"time"
 )
 
 type Order struct {
@@ -20,7 +19,7 @@ type Order struct {
 func (o *Order) getPayload() []byte {
 	result, err := json.Marshal(*o)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return nil
 	}
 	return result
@@ -54,7 +53,7 @@ func generateOrder(table *Table) *Order {
 	ret.Items = items
 	ret.Priority = rand.Intn(3)
 	ret.MaxWait = maxWait
-	ret.PickUpTime = time.Now().Unix()
+	ret.PickUpTime = getUnixTimeUnits()
 
 	return ret
 }

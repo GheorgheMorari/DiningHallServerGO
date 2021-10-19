@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -13,27 +12,7 @@ type DiningHallWeb struct {
 	diningHallServer  http.Server
 	diningHallHandler DiningHallHandler
 	diningHallClient  http.Client
-	latestDelivery    *Delivery
 	connectionError   error
-	deliveryMutex     sync.Mutex
-}
-
-func (dhw *DiningHallWeb) getDelivery() *Delivery {
-	dhw.deliveryMutex.Lock()
-	defer dhw.deliveryMutex.Unlock()
-
-	ret := dhw.latestDelivery
-	dhw.latestDelivery = getNilDelivery()
-
-	return ret
-}
-
-func (dhw *DiningHallWeb) setDelivery(delivery *Delivery) {
-	dhw.deliveryMutex.Lock()
-	defer dhw.deliveryMutex.Unlock()
-
-	dhw.latestDelivery = delivery
-
 }
 
 func (dhw *DiningHallWeb) start() {

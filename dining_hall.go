@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -8,10 +9,14 @@ type DiningHall struct {
 	diningHallWeb DiningHallWeb
 	waiterList    *WaiterList
 	tableList     *TableList
+	deliveryChan  chan *Delivery
+	ratings       *Rating
 	connected     bool
+	startTime     time.Time
 }
 
 func (dh *DiningHall) start() {
+	dh.ratings = NewRating()
 	dh.waiterList = NewWaiterList()
 	dh.tableList = NewTableList()
 	go dh.tryConnectKitchen()
@@ -19,8 +24,12 @@ func (dh *DiningHall) start() {
 }
 
 func (dh *DiningHall) connectionSuccessful() {
-	if dh.connected {return}
+	dh.startTime = time.Now()
+	if dh.connected {
+		return
+	}
 	dh.connected = true
+	dh.deliveryChan = make(chan *Delivery)
 	dh.tableList.start()
 	dh.waiterList.start()
 }
@@ -32,7 +41,7 @@ func (dh *DiningHall) tryConnectKitchen() {
 			dh.connectionSuccessful()
 			break
 		} else {
-			time.Sleep(time.Second)
+			time.Sleep(timeUnit)
 		}
 	}
 }
@@ -42,13 +51,15 @@ func (dh *DiningHall) sendOrder(order *Order) bool {
 }
 
 func (dh *DiningHall) getStatus() string {
-	ret := "Waiters:"
+	ret := "Running for:" + fmt.Sprintf("%v", time.Since(dh.startTime))
+	ret += makeDiv("Rating:" + fmt.Sprintf("%f", dh.ratings.getAverage()) + " Total reviews:" + fmt.Sprintf("%d", dh.ratings.getNumOfOrders()))
+	ret += "Waiters:"
 	for _, waiter := range dh.waiterList.waiterList {
 		ret += makeDiv(waiter.getStatus())
 	}
-	ret +="Tables:"
+	ret += "Tables:"
 	for _, table := range dh.tableList.tableList {
-		ret+= makeDiv(table.getStatus())
+		ret += makeDiv(table.getStatus())
 	}
 
 	return ret
