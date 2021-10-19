@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -29,10 +28,6 @@ func NewTable(id int, status int, order *Order) *Table {
 }
 
 func (t *Table) deliver(delivery *Delivery, now int64) {
-	if t.status != 2 {
-		fmt.Printf("WRONG STATUS")
-	}
-
 	t.status = 3 //Set status to "eating"
 	t.order = nil
 
