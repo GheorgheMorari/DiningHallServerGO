@@ -4,6 +4,9 @@ import (
 	"strconv"
 	"time"
 )
+//Waiter tunables
+const getOrderTimeRequired = 3 * timeUnit
+const deliveryTimeRequired = 2 * timeUnit
 
 var waiterStatus = [...]string{"Waiting.", "Sending order id:", "Delivering delivery id:", "Waiting for orderList to clear."}
 
@@ -38,7 +41,7 @@ func (w *Waiter) startWorking() {
 				didATask = true
 				w.modifierId = order.Id
 				w.statusId = 1
-				time.Sleep(timeUnit)
+				time.Sleep(getOrderTimeRequired)
 			} else {
 				w.statusId = 3
 				time.Sleep(timeUnit)
@@ -52,7 +55,7 @@ func (w *Waiter) startWorking() {
 			//Serve delivery to the required table
 			w.statusId = 2
 			w.modifierId = delivery.OrderId
-			time.Sleep(timeUnit)
+			time.Sleep(deliveryTimeRequired)
 			now := getUnixTimeUnits()
 			diningHall.tableList.deliver(delivery, now)
 		default:
