@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"os"
 	"time"
 )
@@ -18,7 +19,7 @@ const timeUnit = 100 * time.Millisecond
 var diningHall DiningHall
 
 func main() {
-
+	rand.Seed(69)
 	args := os.Args
 	if len(args) > 1 {
 		//Set the docker internal host
