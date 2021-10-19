@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"math/rand"
 )
 
@@ -19,7 +19,7 @@ type Order struct {
 func (o *Order) getPayload() []byte {
 	result, err := json.Marshal(*o)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return nil
 	}
 	return result

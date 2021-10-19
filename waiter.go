@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var waiterStatus = [...]string{"Waiting.", "Sending order id:", "Delivering delivery id:"}
+var waiterStatus = [...]string{"Waiting.", "Sending order id:", "Delivering delivery id:", "Waiting for orderList to clear."}
 
 type Waiter struct {
 	id         int
@@ -29,22 +29,19 @@ func (w *Waiter) startWorking() {
 		didATask := false
 
 		//Look for table that needs their order taken
-		table := diningHall.tableList.lookUpTable()
+		order := diningHall.tableList.serveTable(w)
 
-		if table != nil {
-			//Get order
-			order := table.getOrder(w)
-
+		for success := false; order != nil && !success; {
 			//Send order
-			success := diningHall.sendOrder(order)
+			success = diningHall.sendOrder(order)
 			if success {
 				didATask = true
 				w.modifierId = order.Id
 				w.statusId = 1
 				time.Sleep(timeUnit)
 			} else {
-				go table.waitForOrderList()
-				didATask = false
+				w.statusId = 3
+				time.Sleep(timeUnit)
 			}
 		}
 
@@ -57,7 +54,7 @@ func (w *Waiter) startWorking() {
 			w.modifierId = delivery.OrderId
 			time.Sleep(timeUnit)
 			now := getUnixTimeUnits()
-			go diningHall.tableList.tableList[delivery.TableId].deliver(delivery, now)
+			diningHall.tableList.deliver(delivery, now)
 		default:
 			break
 		}
@@ -72,7 +69,7 @@ func (w *Waiter) startWorking() {
 }
 func (w *Waiter) getStatus() string {
 	status := "Waiter id:" + strconv.Itoa(w.id) + " Status:" + waiterStatus[w.statusId]
-	if w.statusId != 0 {
+	if w.statusId == 1 || w.statusId == 2 {
 		return status + strconv.Itoa(w.modifierId)
 	}
 	return status
